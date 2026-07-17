@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from shapely.geometry import box
 
-engine = create_engine("postgresql://postgres:@localhost:5432/GPS")
+engine = create_engine("")
 
 
 def build_and_save_spatial_tiles():
@@ -60,20 +60,21 @@ def build_and_save_spatial_tiles():
                         tile_coords[target_node] = all_coords[target_node]
                     tile_graph.setdefault(source_node, []).append((target_node, travel_time, length_m, road_rank))
 
-            # --- Step 3: Second pass — process buffer nodes pulled in from Step 2 ---
-            # Buffer nodes now exist in tile_coords but have no edges in tile_graph yet.
-            # Adding their edges allows A* to continue routing through them without
-            # hitting a dead end at tile boundaries.
-            for source_node in list(tile_coords.keys()):
-                if source_node in tile_graph:
-                    continue  # already handled in first pass
-                if source_node not in edge_map:
-                    continue
-                for target_node, travel_time, length_m, road_rank in edge_map[source_node]:
-                    # Pull in second-level buffer coords if needed
-                    if target_node not in tile_coords and target_node in all_coords:
-                        tile_coords[target_node] = all_coords[target_node]
-                    tile_graph.setdefault(source_node, []).append((target_node, travel_time, length_m, road_rank))
+            # --- Step 3 removed ---
+            # The previous version of this script also expanded a SECOND hop out
+            # from the tile (every neighbor-of-a-neighbor), on the theory that A*
+            # needed full edge data for buffer nodes to avoid dead-ending at tile
+            # borders. That expansion is bounded by graph hops, not real distance —
+            # so in areas with long, sparse edges (rural highways) it could pull in
+            # nodes many km beyond the tile boundary, and neighboring tiles ended up
+            # massively duplicating each other's border-area data.
+            #
+            # It's unnecessary: TileRouter already calls load_tile_for_coordinate on
+            # a node's real coordinates before processing its edges, every time it's
+            # visited. So a buffer node with coords-but-no-edges here simply triggers
+            # the router to load whichever tile treats it as native (Step 2 above),
+            # supplying its real edges on demand instead of duplicating them into
+            # every neighboring tile ahead of time.
 
             # --- Step 4: Package and save to PostGIS ---
             tile_payload = {"graph": tile_graph, "coords": tile_coords}
