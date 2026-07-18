@@ -7,7 +7,7 @@ import pandas as pd
 
 directory = Path("./cache")
 
-engine = create_engine("postgresql://postgres:@localhost:5432/GPS")
+engine = create_engine("")
 
 ROAD_RANK = {
     # Highways

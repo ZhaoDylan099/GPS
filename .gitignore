@@ -5,3 +5,9 @@ cache
 compose.yaml
 
 __pycache__
+
+*.prof
+
+*.Docker.md
+
+*.dump
