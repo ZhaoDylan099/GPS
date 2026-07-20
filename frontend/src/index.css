@@ -1,0 +1,139 @@
+:root {
+  --bg: #14171C;
+  --panel: #1C2027;
+  --panel-border: #2A2F38;
+  --text: #E7E9EC;
+  --text-muted: #8B93A1;
+  --accent: #4C8DFF;
+  --accent-dim: rgba(76, 141, 255, 0.18);
+  --amber: #F5A623;
+  --success: #34C77B;
+  --error: #F0564D;
+
+  --font-display: "Oswald", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%; margin: 0;
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body);
+}
+
+#layout { position: absolute; inset: 0; display: flex; }
+
+#sidebar {
+  width: 360px; flex-shrink: 0;
+  padding: 24px; overflow-y: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--panel-border);
+  z-index: 1000;
+}
+
+#map { flex: 1; }
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--accent);
+  margin: 0 0 6px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 700; letter-spacing: 0.01em;
+  margin: 0 0 28px; color: var(--text);
+}
+
+.field { margin-bottom: 16px; }
+
+label {
+  display: block; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 6px;
+}
+
+input {
+  width: 100%; padding: 11px 12px; font-size: 14px;
+  font-family: var(--font-body); color: var(--text);
+  background: var(--bg); border: 1px solid var(--panel-border);
+  border-radius: 6px; outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input::placeholder { color: #565D6B; }
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+button {
+  width: 100%; margin-top: 8px; padding: 13px;
+  font-family: var(--font-display); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--accent); color: #08101F;
+  border: none; border-radius: 6px; cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+button:hover:not(:disabled) { background: var(--amber); }
+button:active:not(:disabled) { transform: scale(0.99); }
+button:disabled { background: #37404F; color: var(--text-muted); cursor: default; }
+button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.status {
+  margin-top: 14px; font-size: 13px; line-height: 1.5; min-height: 18px;
+}
+.status.error { color: var(--error); }
+.status.success { color: var(--success); }
+
+.readout {
+  margin-top: 20px; display: none;
+  border: 1px solid var(--panel-border); border-radius: 8px;
+  background: var(--bg); overflow: hidden;
+}
+.readout.visible { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.readout-cell {
+  padding: 14px 10px; text-align: center;
+  border-right: 1px solid var(--panel-border);
+}
+.readout-cell:last-child { border-right: none; }
+.readout-value {
+  font-family: var(--font-mono); font-weight: 700; font-size: 18px;
+  color: var(--accent); letter-spacing: -0.02em;
+}
+.readout-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-muted); margin-top: 4px;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--panel); color: var(--text);
+  font-family: var(--font-body); font-size: 13px;
+  border: 1px solid var(--panel-border);
+}
+.leaflet-popup-tip { background: var(--panel); }
+
+.pin {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--bg); box-shadow: 0 0 0 2px currentColor;
+}
+.pin-start { color: var(--success); background: var(--success); }
+.pin-goal { color: var(--amber); background: var(--amber); animation: pulse 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .pin-goal { animation: none; }
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 2px currentColor; }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+
+@media (max-width: 720px) {
+  #layout { flex-direction: column; }
+  #sidebar {
+    width: 100%; height: auto; max-height: 45vh;
+    border-right: none; border-bottom: 1px solid var(--panel-border);
+  }
+  #map { flex: 1; }
+}
