@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 
@@ -9,6 +10,17 @@ from search import search_location
 from GraphTileCache import GraphTileCache
 
 app = FastAPI()
+
+# Allow the frontend (served from a different origin — e.g. a local static
+# file server on a different port) to call this API. Wide open for now since
+# this is local development; tighten allow_origins before deploying anywhere
+# public.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # In Docker, "localhost" would point at the app container itself, not the DB
 # container — so this reads from DATABASE_URL (set in docker-compose.yml to
@@ -72,8 +84,21 @@ def route(request: RouteRequest):
     if result is None:
         return {"error": "Route not found"}
     path, total_time, total_distance = result
+
+    # By the time a route is found, every node on the path has already been
+    # loaded into cache.coords by the search itself — no extra DB round-trips
+    # needed here, just look them up.
+    path_coordinates = [
+        {"node_id": node_id, "latitude": cache.coords[node_id][0], "longitude": cache.coords[node_id][1]}
+        for node_id in path
+        if node_id in cache.coords
+    ]
+
     return {
         "path": path,
+        "path_coordinates": path_coordinates,
+        "start": start,
+        "goal": goal,
         "total_time": total_time,
         "total_distance": total_distance
     }
