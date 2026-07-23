@@ -2,6 +2,7 @@ import { useState } from "react";
 import Sidebar from "./components/Sidebar.jsx";
 import MapView from "./components/MapView.jsx";
 import { findRoute } from "./api.js";
+import SearchBar from "./components/SearchBar.jsx";
 
 export default function App() {
   const [startAddress, setStartAddress] = useState("Columbus, OH");
@@ -69,6 +70,18 @@ export default function App() {
       });
     }
   }
+
+  return (
+    <div id="layout">
+      <SearchBar
+        address={startAddress}
+        setAddress={setStartAddress}
+        onSearch={handleSearchAddress}
+        isLoading={isLoading}
+        status={status}
+      />
+    </div>
+  );
 
 }
 
